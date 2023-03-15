@@ -5,25 +5,30 @@ module.exports = {
   // 输出文件目录
   outputDir: process.env.NODE_ENV === 'production' ? 'dist' : 'devdist',
   // eslint-loader 是否在保存的时候检查
-  lintOnSave: true,
-  /**
+  lintOnSave: false,
+  /** vue3.0内置了webpack所有东西，
    * webpack配置,see https://github.com/vuejs/vue-cli/blob/dev/docs/webpack.md
    **/
   chainWebpack: (config) => {
+    const svgRule = config.module.rule("svg");     
+    svgRule.uses.clear();     
+    svgRule
+    .use("svg-sprite-loader")
+    .loader("svg-sprite-loader")
+    .options({ 
+      symbolId: "icon-[name]",
+      include: ["./src/icons"] 
+    });
   },
   configureWebpack: (config) => {
-    // config.resolve = { // 配置解析别名
-    //   extensions: ['.js', '.json', '.vue'],
-    //   alias: {
-    //     '@': path.resolve(__dirname, './src'),
-    //     'public': path.resolve(__dirname, './public'),
-    //     'components': path.resolve(__dirname, './src/components'),
-    //     'common': path.resolve(__dirname, './src/common'),
-    //     'api': path.resolve(__dirname, './src/api'),
-    //     'views': path.resolve(__dirname, './src/views'),
-    //     'data': path.resolve(__dirname, './src/data')
-    //   }
-    // }
+    config.resolve = { // 配置解析别名
+      extensions: ['.js', '.json', '.vue'],  // 自动添加文件名后缀
+      alias: {
+        'vue': 'vue/dist/vue.js',
+        '@': path.resolve(__dirname, './src'),
+        '@c': path.resolve(__dirname, './src/components')
+      }
+    }
   },
   // 生产环境是否生成 sourceMap 文件
   productionSourceMap: false,
@@ -35,19 +40,12 @@ module.exports = {
     sourceMap: false,
     // css预设器配置项
     loaderOptions: {
-      // 如发现 css.modules 报错，请查看这里：http://www.web-jshtml.cn/#/detailed?id=12
-      sass: { 
-        data: `@import "./src/styles/main.scss";`
-      },
-    // 代替CSS modules写法
-    css: {
-      modules: {
-        auto: () => false
-      }
-    }
-    }
+        sass: { 
+            data: `@import "./src/styles/main.scss";`
+        }
+    },
     // 启用 CSS modules for all css / pre-processor files.
-    // modules: false
+    modules: false
   },
   // use thread-loader for babel & TS in production build
   // enabled by default if the machine has more than 1 cores
@@ -63,16 +61,22 @@ module.exports = {
     port: 8080, // 访问端口
     https: false, // 编译失败时刷新页面
     hot: true, // 开启热加载
-    hot: false,
-    proxy: null, // 设置代理
-    client: {
-      overlay: { // 全屏模式下是否显示脚本错误
-        warnings: true,
-        errors: true
-      },
+    hotOnly: false,
+    proxy: {
+      '/devApi': {
+          target: "http://www.web-jshtml.cn/productapi/token", //API服务器的地址  http://www.web-jshtml.cn/api
+          changeOrigin: true,
+          pathRewrite: {
+              '^/devApi': ''
+          }
+      }
     },
-    // before: app => {
-    // }
+    overlay: { // 全屏模式下是否显示脚本错误
+      warnings: true,
+      errors: true
+    },
+    before: app => {
+    }
   },
   /**
    * 第三方插件配置
