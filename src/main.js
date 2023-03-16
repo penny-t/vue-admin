@@ -1,5 +1,6 @@
 import Vue from "vue";
 import App from "./App.vue";
+import VueCompositionApi from "@vue/composition-api";
 import router from "./router/index.js";
 import store from "./store/index.js";
 import ElementUI from "element-ui";
@@ -11,6 +12,7 @@ import "element-ui/lib/theme-chalk/index.css";
 import "./icons";
 // Vue.use(global);
 Vue.use(ElementUI);
+Vue.use(VueCompositionApi)
 
 // runtime（运行模式）
 new Vue({
