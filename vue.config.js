@@ -25,7 +25,7 @@ module.exports = {
       extensions: ['.js', '.json', '.vue'], // 自动添加文件名后缀
       alias: {
         'vue': 'vue/dist/vue.js',
-        '@': path.resolve(__dirname, './src'),
+        '@': path.resolve(__dirname, './src'),//以@代表/src路径
         '@c': path.resolve(__dirname, './src/components')
       }
     }
