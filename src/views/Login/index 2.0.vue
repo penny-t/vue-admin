@@ -2,39 +2,65 @@
   <div id="login">
     <div class="login-wrap">
       <ul class="menu-tab">
-        <li v-for="item in menuTab" :key="item.id" :class="{ current: item.current }" @click="toggleMenu(item)">
+        <li v-for="item in menuTab"
+            :key="item.id"
+            :class="{ current: item.current }"
+            @click="toggleMenu(item)">
           {{ item.txt }}
         </li>
       </ul>
       <!-- 表单验证 start -->
-      <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" class="login-form" size="medium">
-        <el-form-item prop="username" class="item-form">
+      <el-form :model="ruleForm"
+               status-icon
+               :rules="rules"
+               ref="ruleForm"
+               class="login-form"
+               size="medium">
+        <el-form-item prop="username"
+                      class="item-form">
           <label>邮箱</label>
-          <el-input type="text" v-model="ruleForm.username" autocomplete="off"></el-input>
+          <el-input type="text"
+                    v-model="ruleForm.username"
+                    autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item prop="password" class="item-form">
+        <el-form-item prop="password"
+                      class="item-form">
           <label>密码</label>
-          <el-input type="password" v-model="ruleForm.password" autocomplete="off" minlength="6"
-            maxlength="20"></el-input>
+          <el-input type="password"
+                    v-model="ruleForm.password"
+                    autocomplete="off"
+                    minlength="6"
+                    maxlength="20"></el-input>
         </el-form-item>
-        <el-form-item prop="pwd" class="item-form" v-show="model === 'register'">
+        <el-form-item prop="pwd"
+                      class="item-form"
+                      v-show="model === 'register'">
           <label>重复密码</label>
-          <el-input type="password" v-model="ruleForm.pwd" autocomplete="off" minlength="6" maxlength="20"></el-input>
+          <el-input type="password"
+                    v-model="ruleForm.pwd"
+                    autocomplete="off"
+                    minlength="6"
+                    maxlength="20"></el-input>
         </el-form-item>
 
-        <el-form-item prop="code" class="item-form">
+        <el-form-item prop="code"
+                      class="item-form">
           <label>验证码</label>
 
           <el-row :gutter="18">
-            <el-col :span="15"><el-input v-model="ruleForm.code" minlength="6" maxlength="6"></el-input></el-col>
+            <el-col :span="15"><el-input v-model="ruleForm.code"
+                        minlength="6"
+                        maxlength="6"></el-input></el-col>
             <el-col :span="9">
-              <el-button type="success" class="block">获取验证码</el-button>
+              <el-button type="success"
+                         class="block">获取验证码</el-button>
             </el-col>
           </el-row>
-
         </el-form-item>
         <el-form-item>
-          <el-button type="danger" class="login-btn block" @click="submitForm('ruleForm')">提交</el-button>
+          <el-button type="danger"
+                     class="login-btn block"
+                     @click="submitForm('ruleForm')">提交</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -42,6 +68,7 @@
 </template>
 
 <script>
+import service from '@/utils/request'
 import {
   stripscript,
   validateEmail,
@@ -135,8 +162,8 @@ export default {
       },
     }
   },
-  created() { },
-  mounted() { },
+  created() {},
+  mounted() {},
   methods: {
     toggleMenu(item) {
       // tab背景切换

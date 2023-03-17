@@ -30,3 +30,7 @@ export function validateVCode(value){
   let reg = /^[a-z0-9]{6}$/;
   return !reg.test(value) ? true : false
 }
+/**
+ * 没有使用default时，(可以同时声明多个export)
+ * 文件 import 不需要花括号
+ */
