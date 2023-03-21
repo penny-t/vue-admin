@@ -1,8 +1,15 @@
 // 拦截器
 import axios from "axios";
+// console.log(process.env.NODE_ENV)
 
 // 创建axios 赋值给变量service
-var service = axios.create();
+// axios.create 调用的是 createInstance 函数，这个函数将会新建一个 Axios 实例
+// 开发环境是否是生产环境，是则为''，不是地址则加前缀 /devApi
+var BASEURL = process.env.NODE_ENV === 'production' ? '' : '/devApi';
+var service = axios.create({
+  baseURL: BASEURL,   //http://192.168.0.189:8080/devApi/ ==  http://www.web-jshtml.cn/productapi/productapi,
+  timeout:1000,
+});
 // 添加请求拦截器
 service.interceptors.request.use(
   function(config) {
@@ -26,6 +33,8 @@ service.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+
 
 export default service
 

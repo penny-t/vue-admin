@@ -62,15 +62,22 @@ module.exports = {
     https: false, // 编译失败时刷新页面
     hot: true, // 开启热加载
     hotOnly: false,
+    // 配置跨域  设置代理
+  
     proxy: {
+      //  所有地址后缀都加  /devApi
       '/devApi': {
-        target: "http://www.web-jshtml.cn/productapi/token", //API服务器的地址  http://www.web-jshtml.cn/api
+        target: "http://old.web-jshtml.cn/vue_admin_api", //要访问的API服务器的地址 http://old.web-jshtml.cn/vue_admin_api
         changeOrigin: true,
         pathRewrite: {
-          '^/devApi': ''
+          '^/devApi': ''  //查找以/devApi开头的api 查找到就替换为空的 其实就是request.js中的BASEURL
         }
       }
     },
+     // 在浏览器看来访问的/devApi，是localhost:8080这个ip和端口的服务,符合同源策略，所以浏览器并不会认为这是跨域。
+    // 实际上，服务器在拦截到带有/devApi/后，会将访问前缀更换为指定目标【target】，实际时访问的是 http://old.web-jshtml.cn/vue_admin_api
+
+
     overlay: { // 全屏模式下是否显示脚本错误
       warnings: true,
       errors: true
