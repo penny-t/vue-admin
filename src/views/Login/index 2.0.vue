@@ -7,14 +7,14 @@
         </li>
       </ul>
       <!-- 表单验证 start -->
-      <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" class="login-form" size="medium">
+      <el-form :model="ruleForm" status-icon :rules="rules" ref="loginForm" class="login-form" size="medium">
         <el-form-item prop="username" class="item-form">
-          <label>邮箱</label>
-          <el-input type="text" v-model="ruleForm.username" autocomplete="off"></el-input>
+          <label for="username">邮箱</label>
+          <el-input id="username" type="text" v-model="ruleForm.username" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item prop="password" class="item-form">
-          <label>密码</label>
-          <el-input type="password" v-model="ruleForm.password" autocomplete="off" minlength="6"
+          <label for="password">密码</label>
+          <el-input id="password" type="password" v-model="ruleForm.password" autocomplete="off" minlength="6"
             maxlength="20"></el-input>
         </el-form-item>
         <el-form-item prop="pwd" class="item-form" v-show="model === 'register'">
@@ -28,13 +28,15 @@
           <el-row :gutter="18">
             <el-col :span="15"><el-input v-model="ruleForm.code" minlength="6" maxlength="6"></el-input></el-col>
             <el-col :span="9">
-              <el-button type="success" class="block" @click="getSms()">获取验证码</el-button>
+              <el-button type="success" :disabled="codeButtonStatus" class="block" @click="getSms()">{{ codeButtonText
+              }}</el-button>
             </el-col>
           </el-row>
 
         </el-form-item>
         <el-form-item>
-          <el-button type="danger" class="login-btn block" @click="submitForm('ruleForm')">提交</el-button>
+          <el-button type="danger" :disabled="loginButtonStatus" class="login-btn block"
+            @click="submitForm('loginForm')">{{ model === 'login' ? "登录" : "注册" }}</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -48,7 +50,7 @@ import {
   validatePass,
   validateVCode,
 } from '@/utils/validate'
-import {GetSms} from '@/api/login';
+import { GetSms } from '@/api/login'
 export default {
   name: 'login',
   data() {
@@ -120,7 +122,15 @@ export default {
         { txt: '注册', current: false, type: 'register' },
       ],
       // 控制注册页面重复密码的模块显示值
-      model: 'register',
+      model: 'login',
+      // 登录按钮默认禁用状态
+      loginButtonStatus: true,
+      // 验证码在发送时修改为禁用状态,默认状态非禁用
+      codeButtonStatus: false,
+      // 初始值为 获取验证码，点击发送显示 发送中
+      codeButtonText: '获取验证码',
+      // 倒计时 计时器
+      timer: '',
       // 表单验证规则数据
       ruleForm: {
         username: '',
@@ -137,26 +147,87 @@ export default {
     }
   },
   created() { },
-  mounted() {
-    
-   },
+  mounted() { },
   methods: {
     toggleMenu(item) {
-      // tab背景切换
+      // tab点击背景切换
       this.menuTab.forEach((ele, index) => {
         ele.current = false
       })
       item.current = true
-      // 修改模块值
+      // 修改模块值 login register
       this.model = item.type
+      //切换登录注册时， 重置表单
+      this.$refs.loginForm.resetFields();
     },
     // 获取验证码
-    getSms(){
-      let data = {
-        username:this.ruleForm.username
+    getSms() {
+      // 修改获取验证码状态，验证码在发送时是禁用状态
+      this.codeButtonStatus = true
+      // 点击验证码，显示 发送中
+      this.codeButtonText = '发送中'
+      // 一：获取验证码时先验证邮箱是否为空，为空进行提示
+      if (this.ruleForm.username == '') {
+        this.$message.error('邮箱不能为空')
+        return false
       }
-      GetSms(data)
+      // 二：如果填写了邮箱,验证填写的邮箱格式是否正确
+      if (validateEmail(this.ruleForm.username)) {
+        this.$message.error('邮箱格式有误，请重新输入！！')
+        return false
+      }
+      // 三：获取验证码，请求的接口,传入参数
+      let requestData = {
+        username: this.ruleForm.username,
+        module: this.model
+      }
+      // 因为login.js中有return promise的错误信息，所以在此可以.then .catch接收拦截器的成功和错误的消息
+      setTimeout(() => {
+        // 延时多长时间
+        GetSms(requestData)
+          .then((response) => {
+            let data = response.data
+            // 验证码发送成功后，消息提示
+            this.$message({
+              message: data.message,
+              type: 'success'
+            });
+            // 验证码发送成功后，启用登录或注册按钮状态
+            this.loginButtonStatus = false
+            // 验证码发送成功后，调用计时器，开始倒计时
+            this.countdown(5)
+          })
+          .catch((error) => {
+            console.log(error)
+          })
+      }, 3000)
+
     },
+    /**
+    * 倒计时
+    */
+    countdown(number) {
+      // setTimeout 只执行一次
+      // setInterval 不断的执行，需要条件才会停止
+      let time = number
+      console.log(time);
+      this.timer = setInterval(() => {
+        time--
+        console.log(time);
+        if (time === 0) {
+          // 倒计时为0，1：清除倒计时
+          clearInterval(this.timer)
+          // 2：重新显示验证码状态，并显示文字为再次获取
+          this.codeButtonStatus = false
+          this.codeButtonText = '再次获取'
+        } else {
+          // 倒计时减少，按钮显示倒计时秒数
+          this.codeButtonText = `倒计时${time}秒`  //es5写法  '倒计时'+ time + '秒' 
+        }
+
+      }, 1000)
+    },
+
     // 提交表单
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {

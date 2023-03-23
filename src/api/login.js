@@ -1,7 +1,8 @@
 // 获取验证码
 import service from "@/utils/request";
 export function GetSms(data){
-  service.request({
+  // 因为响应拦截器抛出了promise错误信息，想要接收到就需要抛出去，即在前面加个return
+  return service.request({
     method:"post",
     url:"/getSms/",
     data   

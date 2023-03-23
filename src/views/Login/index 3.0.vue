@@ -33,25 +33,40 @@
               <el-input v-model="ruleForm.code" minlength="6" maxlength="6"></el-input>
             </el-col>
             <el-col :span="9">
-              <el-button type="success" class="block" @click="getSms()">获取验证码</el-button>
+              <el-button type="success" :disabled="codeButtonStatus.status" class="block" @click="getSms()">{{codeButtonStatus.text}}</el-button>
             </el-col>
           </el-row>
         </el-form-item>
         <el-form-item>
-          <el-button type="danger" class="login-btn block" @click="submitForm('loginForm')">提交</el-button>
+          <el-button type="danger" :disabled="loginButtonStatus" class="login-btn block"
+            @click="submitForm('loginForm')">{{ model === 'login' ? "登录" : "注册" }}</el-button>
         </el-form-item>
       </el-form>
     </div>
   </div>
 </template>
 <script>
-import {GetSms} from '@/api/login';
-import { reactive, ref, isRef, toRefs, onMounted, watch } from '@vue/composition-api';
-import { stripscript, validatePass, validateEmail, validateVCode } from '@/utils/validate';
+import { GetSms } from '@/api/login'
+import {
+  reactive,
+  ref,
+  isRef,
+  toRefs,
+  onMounted,
+  watch,
+} from '@vue/composition-api'
+import {
+  stripscript,
+  validatePass,
+  validateEmail,
+  validateVCode,
+} from '@/utils/validate'
 export default {
   name: 'login',
   // setup(props, context){
   /**
+   * console.log(context)
+   * 3.0语法    对应     2.0语法
    *attrs: (...) == this.$attrs
     emit: (...) == this.$emit
     listeners: (...) == this.$listeners
@@ -59,89 +74,99 @@ export default {
     refs: (...) == this.$refs
     root: (...) == this
     */
+  //  3.0中的setup函数用root代替this
   setup(props, { refs, root }) {
     // 验证用户名
     let validateUsername = (rule, value, callback) => {
       if (value === '') {
-        callback(new Error('请输入用户名'));
+        callback(new Error('请输入用户名'))
       } else if (validateEmail(value)) {
-        callback(new Error('用户名格式有误'));
+        callback(new Error('用户名格式有误'))
       } else {
-        callback(); //true
+        callback() //true
       }
-    };
+    }
     // 验证密码
     let validatePassword = (rule, value, callback) => {
       // 过滤后的数据
-      ruleForm.password = stripscript(value);
-      value = ruleForm.password;
+      ruleForm.password = stripscript(value)
+      value = ruleForm.password
       if (value === '') {
-        callback(new Error("请输入密码"));
+        callback(new Error('请输入密码'))
       } else if (validatePass(value)) {
-        callback(new Error("密码为6至20位数字+字母"));
+        callback(new Error('密码为6至20位数字+字母'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     // 验证重复密码
     let validatePasswords = (rule, value, callback) => {
       // 如果模块值为login, 直接通过
-      if (model.value === 'login') { callback(); }
-      // 过滤后的数据
-      ruleForm.passwords = stripscript(value);
-      value = ruleForm.passwords;
-      if (value === '') {
-        callback(new Error('请再次输入密码'));
-      } else if (value != ruleForm.password) {
-        callback(new Error('重复密码不正确'));
-      } else {
-        callback();
+      if (model.value === 'login') {
+        callback()
       }
-    };
+      // 过滤后的数据
+      ruleForm.passwords = stripscript(value)
+      value = ruleForm.passwords
+      if (value === '') {
+        callback(new Error('请再次输入密码'))
+      } else if (value != ruleForm.password) {
+        callback(new Error('重复密码不正确'))
+      } else {
+        callback()
+      }
+    }
     // 验证验证码
     let validateCode = (rule, value, callback) => {
       if (value === '') {
-        return callback(new Error('请输入验证码'));
+        return callback(new Error('请输入验证码'))
       } else if (validateVCode(value)) {
-        return callback(new Error('验证码格式有误'));
+        return callback(new Error('验证码格式有误'))
       } else {
-        callback();
+        callback()
       }
-    };
+    }
     /*********************************************************************************************************************
      * 声明数据
      */
     // 这里面放置data数据、生命周期、自定义的函数
     const menuTab = reactive([
       { txt: '登录', current: true, type: 'login' },
-      { txt: '注册', current: false, type: 'register' }
-    ]);
-    // 模块值 
-    const model = ref('login');
+      { txt: '注册', current: false, type: 'register' },
+    ])
+    // 模块值
+    const model = ref('login')
+    // 登录按钮默认禁用状态
+    const loginButtonStatus = ref(true)
+    // 验证码在发送时修改为禁用状态,默认状态非禁用
+    // const .status = ref(false)
+    // 初始值为 获取验证码，点击发送显示 发送中
+    // const codeButtonText = ref('获取验证码')
+    // 如果是一组对象，可以用reactive，简化代码
+    const codeButtonStatus = reactive(
+      {
+        status:false,
+        text:'获取验证码'
+      }
+    )
 
+    // 声明变量，记录倒计时数据,初始值设为空
+    const timer = ref(null)
 
     // 表单绑定数据
     const ruleForm = reactive({
       username: '',
       password: '',
       passwords: '',
-      code: ''
-    });
+      code: '',
+    })
     // 表单的验证
     const rules = reactive({
-      username: [
-        { validator: validateUsername, trigger: 'blur' }
-      ],
-      password: [
-        { validator: validatePassword, trigger: 'blur' }
-      ],
-      passwords: [
-        { validator: validatePasswords, trigger: 'blur' }
-      ],
-      code: [
-        { validator: validateCode, trigger: 'blur' }
-      ]
-    });
+      username: [{ validator: validateUsername, trigger: 'blur' }],
+      password: [{ validator: validatePassword, trigger: 'blur' }],
+      passwords: [{ validator: validatePasswords, trigger: 'blur' }],
+      code: [{ validator: validateCode, trigger: 'blur' }],
+    })
 
     /**
      * 1、不建议在一个方法里面做多件不同的事件（尽可能只做自己本身的事，不要做其他人的事情）
@@ -152,54 +177,124 @@ export default {
      * 声明函数
      */
     // 切换模块
-    const toggleMenu = (data => {
+    const toggleMenu = (data) => {
       menuTab.forEach((elem, index) => {
-        elem.current = false;
-      });
-      // 高光
-      data.current = true;
-      // 修改模块值
-      model.value = data.type;
+        // 循环到的current值都设为false
+        elem.current = false
 
-    });
+      })
+      // 点击时的current值设为true
+      data.current = true
+      // 修改模块值:login register
+      model.value = data.type
+      //切换登录注册时， 重置表单
+      refs.loginForm.resetFields()
+    }
     // 获取验证码
-    const getSms = (()=>{
-      GetSms({username:ruleForm.username})
-    })
+    const getSms = () => {
+      // 修改获取验证码状态，验证码在发送时是禁用状态
+      // codeButtonStatus.value = true
+      // 点击验证码，显示 发送中
+      // codeButtonText.value = '发送中'
+      codeButtonStatus.status = true
+      codeButtonStatus.text = '发送中'
 
+      // 一：获取验证码时先验证邮箱是否为空，为空进行提示
+      if (ruleForm.username == '') {
+        root.$message.error('邮箱不能为空')
+        return false
+      }
+      // 二：如果填写了邮箱,验证填写的邮箱格式是否正确
+      if (validateEmail(ruleForm.username)) {
+        root.$message.error('邮箱格式有误，请重新输入！！')
+        return false
+      }
+      // 三：获取验证码，请求接口,传入参数
+      // 因为login.js中有return promise的信息，所以在此可以.then .catch接收拦截器的成功和错误的消息
+      let requestData = {
+        username: ruleForm.username,
+        // module: 'login',
+        // 切换注册页面传的参数要改变为register，所以不能写死
+        module: model.value
+      }
+      setTimeout(() => {
+        // 延时多长时间 执行下面代码
+        GetSms(requestData)
+          .then((response) => {
+            let data = response.data
+            // 验证码发送成功后，消息提示
+            root.$message({
+              message: data.message,
+              type: 'success'
+            });
+            // 验证码发送成功后，启用登录或注册按钮状态
+            loginButtonStatus.value = false
+            // 验证码发送成功后，调用计时器，开始倒计时
+            countdown(60)
+          })
+          .catch((error) => {
+            console.log(error)
+          })
+      }, 3000)
+
+    }
+   
     /**
      * 提交表单
      */
-    const submitForm = (formName => {
+    const submitForm = (formName) => {
       refs[formName].validate((valid) => {
         // 表单验证通过
         if (valid) {
           alert('submit!')
         } else {
-          console.log('error submit!!');
-          return false;
+          console.log('error submit!!')
+          return false
         }
       })
+    }
+     /**
+     * 倒计时
+     */
+     const countdown = ((number)=>{
+      // setTimeout 只执行一次
+      // setInterval 不断的执行，需要条件才会停止
+      let time = number
+      timer.value = setInterval(()=>{
+        time--
+        console.log(time);
+        if(time === 0){
+          // 倒计时为0，1：清除倒计时
+          clearInterval(timer.value)
+          // 2：重新显示验证码状态，并显示文字为再次获取
+          codeButtonStatus.status = false
+          codeButtonStatus.text = '再次获取'
+        }else{
+          // 倒计时减少，按钮显示倒计时秒数
+        codeButtonStatus.text =`倒计时${time}秒`  //es5写法  '倒计时'+ time + '秒' 
+        }
+        
+      },1000)
     })
 
     /**
      * 生命周期
      */
     // 挂载完成后
-    onMounted(() => {
-     
-    })
+    onMounted(() => { })
 
     return {
       menuTab,
       model,
+      loginButtonStatus,
+      codeButtonStatus,
       ruleForm,
       rules,
       toggleMenu,
       submitForm,
-      getSms
+      getSms,
     }
-  }
+  },
 }
 </script>
 <style lang="scss" scoped>
@@ -227,7 +322,7 @@ export default {
   }
 
   .current {
-    background-color: rgba(0, 0, 0, .1);
+    background-color: rgba(0, 0, 0, 0.1);
   }
 }
 

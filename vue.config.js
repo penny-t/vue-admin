@@ -65,7 +65,16 @@ module.exports = {
     // 配置跨域  设置代理
   
     proxy: {
-      //  所有地址后缀都加  /devApi
+      /**
+           * 代理设置。当访问域名的时候，碰到/devapi时，将前面的域名转换成target的属性值
+           * 例如在访问http://192.168.0.189:8080/devapi/时
+           * 将http://192.168.0.189:8080域名转换成http://old.web-jshtml.cn/vue_admin_api
+           * 
+           * 实际访问的URL是http://old.web-jshtml.cn/vue_admin_api/devapi
+           * 这时需要将/devapi转换为空字符串，因为我们实际访问URL的地址时不需要这个前缀
+           * 
+           * 当然，如果不想多次一举进行字符串替换，可以在创建axios实例时不设置前缀，这样就可以不进行替换了
+           */
       '/devApi': {
         target: "http://old.web-jshtml.cn/vue_admin_api", //要访问的API服务器的地址 http://old.web-jshtml.cn/vue_admin_api
         changeOrigin: true,

@@ -17,7 +17,7 @@ export default new Router({
       meta: {
         name: "登录"
       },
-      component: () => import("../views/Login/index 3.0.vue")
+      component: () => import("../views/Login/index 2.0.vue")
     },
   ]
 });
