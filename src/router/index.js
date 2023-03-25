@@ -1,23 +1,21 @@
-import { createRouter, createWebHashHistory } from "vue-router";
-import Login from "../views/Login/index.vue";
+import Vue from "vue";
+import Router from "vue-router";
+Vue.use(Router);
 
-const routes = [
-  {
-    path: "/",
-    redirect: "login", //重定向到login页面
-  },
-  {
-    path: "/login",
-    name: "Login",
-    component: Login,
-    // component: () =>
-    //   import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
-  }
-];
-
-const router = createRouter({
-  history: createWebHashHistory(),
-  routes,
+export default new Router({
+  routes: [
+    {
+      path: "/",
+      redirect: "login",
+    },
+    {
+      path: "/login",
+      name: "Login",
+      hidden: true,
+      meta: {
+        name: "登录"
+      },
+      component: () => import("../views/Login/index 3.0.vue")
+    },
+  ]
 });
-
-export default router;
