@@ -51,6 +51,7 @@ import {
   validateVCode,
 } from '@/utils/validate'
 import { GetSms, Register,Login } from '@/api/login'
+import sha1 from 'js-sha1'
 export default {
   name: 'login',
   data() {
@@ -158,14 +159,20 @@ export default {
       // 修改模块值 login register
       this.model = item.type
       //切换登录注册时， 重置表单
+      this.resetFormData()
+      // 切换登录注册时，还原倒计时状态
+      this.clearCountDown()
+    },
+    resetFormData(){
+      //切换登录注册时， 重置表单
       this.$refs.loginForm.resetFields();
+    },
+    updataButtonStatus(params){
+      this.codeButtonStatus = params.status
+      this.codeButtonText = params.text
     },
     // 获取验证码
     getSms() {
-      // 修改获取验证码状态，验证码在发送时是禁用状态
-      this.codeButtonStatus = true
-      // 点击验证码，显示 发送中
-      this.codeButtonText = '发送中'
       // 一：获取验证码时先验证邮箱是否为空，为空进行提示
       if (this.ruleForm.username == '') {
         this.$message.error('邮箱不能为空')
@@ -181,6 +188,14 @@ export default {
         username: this.ruleForm.username,
         module: this.model
       }
+      // 修改获取验证码状态，验证码在发送时是禁用状态
+      // this.codeButtonStatus = true
+      // 点击验证码，显示 发送中
+      // this.codeButtonText = '发送中'
+      this.updataButtonStatus({
+        status:true,
+        text:'发送中'
+      })
       // 因为login.js中有return promise的错误信息，所以在此可以.then .catch接收拦截器的成功和错误的消息
 
       GetSms(requestData)
@@ -219,8 +234,12 @@ export default {
           // 倒计时为0，1：清除倒计时
           clearInterval(this.timer)
           // 2：重新显示验证码状态，并显示文字为再次获取
-          this.codeButtonStatus = false
-          this.codeButtonText = '再次获取'
+          // this.codeButtonStatus = false
+          // this.codeButtonText = '再次获取'
+          this.updataButtonStatus({
+            status:false,
+            text:'再次获取'
+      })
         } else {
           // 倒计时减少，按钮显示倒计时秒数
           this.codeButtonText = `倒计时${time}秒`  //es5写法  '倒计时'+ time + '秒' 
@@ -233,8 +252,12 @@ export default {
     */
     clearCountDown() {
       // 还原验证码按钮状态
-      this.codeButtonStatus = false
-      this.codeButtonText = "获取验证码"
+      // this.codeButtonStatus = false
+      // this.codeButtonText = "获取验证码"
+      this.updataButtonStatus({
+            status:false,
+            text:'获取验证码'
+      })
       // 清除倒计时
       clearInterval(this.timer)
     },
@@ -242,7 +265,7 @@ export default {
     login(){
       let requestData = {
         username:ruleForm.username,
-        password:ruleForm.password,
+        password:sha1(ruleForm.password),
         code:ruleForm.code
       }
       Login(requestData).then(response=>{
@@ -258,7 +281,7 @@ export default {
       // 调用注册接口时，需要传入的参数
       let requestData = {
             username: ruleForm.username,
-            password: ruleForm.password,
+            password: sha1(ruleForm.password),
             code: ruleForm.code,
             module: 'register'
           }

@@ -47,6 +47,7 @@
   </div>
 </template>
 <script>
+import sha1 from 'js-sha1'
 import { GetSms, Register,Login } from '@/api/login'
 import { reactive,ref,isRef,toRefs,onMounted,watch} from '@vue/composition-api'
 import { stripscript,validatePass,validateEmail,validateVCode,
@@ -175,17 +176,21 @@ export default {
       // 修改模块值:login register
       model.value = data.type
       //切换登录注册时， 重置表单
+      resetFormData()
+      // 切换登录注册时，还原倒计时状态
+      clearCountDown()
+    }
+    //切换登录注册时， 重置表单
+    const resetFormData = ()=>{
       refs.loginForm.resetFields()
     }
+    // 更新验证码状态(法三)
+    const updateButtonStatus = ((params)=>{
+      codeButtonStatus.status = params.status
+      codeButtonStatus.text = params.text
+    })
     // 获取验证码
     const getSms = () => {
-      // 修改获取验证码状态，验证码在发送时是禁用状态
-      // codeButtonStatus.value = true
-      // 点击验证码，显示 发送中
-      // codeButtonText.value = '发送中'
-      codeButtonStatus.status = true
-      codeButtonStatus.text = '发送中'
-
       // 一：获取验证码时先验证邮箱是否为空，为空进行提示
       if (ruleForm.username === '') {
         root.$message.error('邮箱不能为空')
@@ -204,6 +209,18 @@ export default {
         // 切换注册页面传的参数要改变为register，所以不能写死
         module: model.value,
       }
+      // 修改获取验证码状态，验证码在发送时是禁用状态(法一)
+      // codeButtonStatus.value = true
+      // 点击验证码，显示 发送中
+      // codeButtonText.value = '发送中'
+      // 法二
+      // codeButtonStatus.status = true
+      // codeButtonStatus.text = '发送中'
+      // 法三
+      updateButtonStatus({
+        status: true,
+        text:'发送中'
+      })
         GetSms(requestData)
           .then((response) => {
             let data = response.data
@@ -253,7 +270,7 @@ export default {
     const login = (()=>{
       let requestData = {
         username:ruleForm.username,
-        password:ruleForm.password,
+        password:sha1(ruleForm.password),
         code:ruleForm.code
       }
       Login(requestData).then(response=>{
@@ -271,7 +288,7 @@ export default {
       // 调用注册接口时，需要传入的参数
       let requestData = {
             username:ruleForm.username,
-            password:ruleForm.password,
+            password:sha1(ruleForm.password),
             code:ruleForm.code,
             module:'register'
           }
@@ -308,8 +325,13 @@ export default {
           // 倒计时为0，1：清除倒计时
           clearInterval(timer.value)
           // 2：重新显示验证码状态，并显示文字为再次获取
-          codeButtonStatus.status = false
-          codeButtonStatus.text = '再次获取'
+          // codeButtonStatus.status = false
+          // codeButtonStatus.text = '再次获取'
+          updateButtonStatus({
+            status: false,
+            text:'再次获取'
+      })
+      
         } else {
           // 倒计时减少，按钮显示倒计时秒数
           codeButtonStatus.text = `倒计时${time}秒` //es5写法  '倒计时'+ time + '秒'
@@ -321,8 +343,12 @@ export default {
      */
      const clearCountDown = (()=>{
       // 还原验证码按钮状态
-      codeButtonStatus.status = false
-      codeButtonStatus.text = "获取验证码"
+      // codeButtonStatus.status = false
+      // codeButtonStatus.text = "获取验证码"
+      updateButtonStatus({
+            status: false,
+            text:'获取验证码'
+      })
       // 清除倒计时
       clearInterval(timer.value)
      })

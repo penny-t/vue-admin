@@ -13,10 +13,19 @@ var service = axios.create({
   baseURL: BASEURL,   //http://192.168.0.189:8080/devApi/ ==  http://old.web-jshtml.cn/productapi,
   timeout:15000, //超时时间  网络请求接口超时的时间，如果超过这个时间就不会执行下面的接口
 });
-// 添加请求拦截器
+/*
+*请求接口之前，做一些数据处理（请求拦截器）
+* */ 
 service.interceptors.request.use(
   function(config) {
     // 在发送请求之前做些什么
+    // 后台需要前端这边传相关的参数（在请求头添加参数）例如token userid等
+    console.log(config.headers);
+    // 业务需求
+
+    // 最终目的是在请求头添加参数
+    config.headers['token'] = '111'
+    config.headers['userid'] = '444'
     return config;
   },
   function(error) {
@@ -25,7 +34,9 @@ service.interceptors.request.use(
   }
 );
 
-// 添加响应拦截器
+/** 
+ * 请求接口之后，返回数据进行拦截（响应拦截器）
+ * */ 
 service.interceptors.response.use(
   function(response) {
     // console.log(response)
