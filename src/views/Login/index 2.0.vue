@@ -271,6 +271,10 @@ export default {
       Login(requestData).then(response=>{
         console.log('登录结果');
         console.log(response);
+         // 页面跳转
+         this.$router.push({
+          name:'Console'
+        })
 
       }).catch(error=>{
 

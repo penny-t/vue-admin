@@ -20,7 +20,7 @@ service.interceptors.request.use(
   function(config) {
     // 在发送请求之前做些什么
     // 后台需要前端这边传相关的参数（在请求头添加参数）例如token userid等
-    console.log(config.headers);
+    // console.log(config.headers);
     // 业务需求
 
     // 最终目的是在请求头添加参数
@@ -45,7 +45,7 @@ service.interceptors.response.use(
      let data = response.data
     //  如果后端返回的resCode数值不是0，说明邮箱为空
      if(data.resCode !== 0){
-      Message.error('邮箱不能为空')
+      Message.error(data.message)
       // 返回错误信息 注意这里返回promise，在login.js中的GetSms是可以接收到的，如果该login.js中的GetSms接口想要把错误信息抛出去，调用GetSms接口时接收到就需要return
       return Promise.reject(data)
      }else{

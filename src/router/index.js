@@ -17,5 +17,17 @@ export default new Router({
       },
       component: () => import("../views/Login/index 3.0.vue")
     },
+    {
+      path: "/console",
+      name: "Console",
+      component: () => import("../views/Layout/index 3.0.vue"),
+      children:[
+        {
+          path: "/console",
+          name: "Console",
+          component: () => import("../views/Console/index 3.0.vue"),
+        }
+      ]
+    },
   ]
 });

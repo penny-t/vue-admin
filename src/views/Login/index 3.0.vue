@@ -190,9 +190,9 @@ export default {
       codeButtonStatus.text = params.text
     })
     // 获取验证码
-    const getSms = () => {
+    const getSms = (() => {
       // 一：获取验证码时先验证邮箱是否为空，为空进行提示
-      if (ruleForm.username === '') {
+      if (ruleForm.username == '') {
         root.$message.error('邮箱不能为空')
         return false
       }
@@ -238,7 +238,7 @@ export default {
             console.log(error)
           })
      
-    }
+    })
 
     /**
      * 提交表单
@@ -247,6 +247,7 @@ export default {
       // 验证表单
       refs[formName].validate((valid) => {
         // 表单验证通过
+        console.log(valid);
         if (valid) {
           // 三元运算简写
           model.value === 'login' ? login() : register()
@@ -268,14 +269,18 @@ export default {
      * 登录
      */
     const login = (()=>{
-      let requestData = {
+      let data = {
         username:ruleForm.username,
         password:sha1(ruleForm.password),
         code:ruleForm.code
       }
-      Login(requestData).then(response=>{
+      Login(data).then(response=>{
         console.log('登录结果');
         console.log(response);
+        // 页面跳转
+        root.$router.push({
+          name:'Console'
+        })
 
       }).catch(error=>{
 
