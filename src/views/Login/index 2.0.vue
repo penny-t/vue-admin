@@ -50,7 +50,8 @@ import {
   validatePass,
   validateVCode,
 } from '@/utils/validate'
-import { GetSms } from '@/api/login'
+import { GetSms, Register,Login } from '@/api/login'
+import sha1 from 'js-sha1'
 export default {
   name: 'login',
   data() {
@@ -158,14 +159,20 @@ export default {
       // 修改模块值 login register
       this.model = item.type
       //切换登录注册时， 重置表单
+      this.resetFormData()
+      // 切换登录注册时，还原倒计时状态
+      this.clearCountDown()
+    },
+    resetFormData(){
+      //切换登录注册时， 重置表单
       this.$refs.loginForm.resetFields();
+    },
+    updataButtonStatus(params){
+      this.codeButtonStatus = params.status
+      this.codeButtonText = params.text
     },
     // 获取验证码
     getSms() {
-      // 修改获取验证码状态，验证码在发送时是禁用状态
-      this.codeButtonStatus = true
-      // 点击验证码，显示 发送中
-      this.codeButtonText = '发送中'
       // 一：获取验证码时先验证邮箱是否为空，为空进行提示
       if (this.ruleForm.username == '') {
         this.$message.error('邮箱不能为空')
@@ -181,26 +188,33 @@ export default {
         username: this.ruleForm.username,
         module: this.model
       }
+      // 修改获取验证码状态，验证码在发送时是禁用状态
+      // this.codeButtonStatus = true
+      // 点击验证码，显示 发送中
+      // this.codeButtonText = '发送中'
+      this.updataButtonStatus({
+        status:true,
+        text:'发送中'
+      })
       // 因为login.js中有return promise的错误信息，所以在此可以.then .catch接收拦截器的成功和错误的消息
-      setTimeout(() => {
-        // 延时多长时间
-        GetSms(requestData)
-          .then((response) => {
-            let data = response.data
-            // 验证码发送成功后，消息提示
-            this.$message({
-              message: data.message,
-              type: 'success'
-            });
-            // 验证码发送成功后，启用登录或注册按钮状态
-            this.loginButtonStatus = false
-            // 验证码发送成功后，调用计时器，开始倒计时
-            this.countdown(5)
-          })
-          .catch((error) => {
-            console.log(error)
-          })
-      }, 3000)
+
+      GetSms(requestData)
+        .then((response) => {
+          let data = response.data
+          // 验证码发送成功后，消息提示
+          this.$message({
+            message: data.message,
+            type: 'success'
+          });
+          // 验证码发送成功后，启用登录或注册按钮状态
+          this.loginButtonStatus = false
+          // 验证码发送成功后，调用计时器，开始倒计时
+          this.countdown(5)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+
 
     },
     /**
@@ -209,6 +223,8 @@ export default {
     countdown(number) {
       // setTimeout 只执行一次
       // setInterval 不断的执行，需要条件才会停止
+      // 判断定时器是否存在，存在则清除，防止用户多次点击出现多个定时器计时
+      if (this.timer) { clearInterval(this.timer) }
       let time = number
       console.log(time);
       this.timer = setInterval(() => {
@@ -218,8 +234,12 @@ export default {
           // 倒计时为0，1：清除倒计时
           clearInterval(this.timer)
           // 2：重新显示验证码状态，并显示文字为再次获取
-          this.codeButtonStatus = false
-          this.codeButtonText = '再次获取'
+          // this.codeButtonStatus = false
+          // this.codeButtonText = '再次获取'
+          this.updataButtonStatus({
+            status:false,
+            text:'再次获取'
+      })
         } else {
           // 倒计时减少，按钮显示倒计时秒数
           this.codeButtonText = `倒计时${time}秒`  //es5写法  '倒计时'+ time + '秒' 
@@ -227,12 +247,81 @@ export default {
 
       }, 1000)
     },
+    /*
+    *清除跳转到登录界面时的倒计时状态 
+    */
+    clearCountDown() {
+      // 还原验证码按钮状态
+      // this.codeButtonStatus = false
+      // this.codeButtonText = "获取验证码"
+      this.updataButtonStatus({
+            status:false,
+            text:'获取验证码'
+      })
+      // 清除倒计时
+      clearInterval(this.timer)
+    },
+    // 登录
+    login(){
+      let requestData = {
+        username:ruleForm.username,
+        password:sha1(ruleForm.password),
+        code:ruleForm.code
+      }
+      Login(requestData).then(response=>{
+        console.log('登录结果');
+        console.log(response);
+         // 页面跳转
+         this.$router.push({
+          name:'Console'
+        })
+
+      }).catch(error=>{
+
+      })
+    },
+    // 注册
+    register(){
+      // 调用注册接口时，需要传入的参数
+      let requestData = {
+            username: ruleForm.username,
+            password: sha1(ruleForm.password),
+            code: ruleForm.code,
+            module: 'register'
+          }
+          // 调用注册接口
+          Register(requestData).then((response) => {
+            console.log(response);
+            let data = response.data
+            // 邮箱注册成立提示消息
+            root.$message({
+              message: data.message,
+              type: 'success'
+            })
+            // 注册成功后自动跳转到登录界面,登录界面的验证码状态恢复为初始状态
+            this.toggleMenu(menuTab[0])
+            this.clearCountDown()
+          }).catch((error) => {
+            console.log(error);
+          })
+    },
 
     // 提交表单
     submitForm(formName) {
+      // 验证表单
       this.$refs[formName].validate((valid) => {
+        // 表单验证通过
         if (valid) {
-          alert('submit!')
+          // 三元运算简写
+          model.value === 'login' ? this.login() : this.register()
+          // if(model.value=='login'){
+          //   // 调用登录接口
+          //   this.login()
+          // }else{
+          //   // 调用注册接口
+          //   this.register()
+          // }
+          
         } else {
           console.log('error submit!!')
           return false

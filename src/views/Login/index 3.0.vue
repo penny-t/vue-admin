@@ -33,7 +33,8 @@
               <el-input v-model="ruleForm.code" minlength="6" maxlength="6"></el-input>
             </el-col>
             <el-col :span="9">
-              <el-button type="success" :disabled="codeButtonStatus.status" class="block" @click="getSms()">{{codeButtonStatus.text}}</el-button>
+              <el-button type="success" :disabled="codeButtonStatus.status" class="block" @click="getSms()">{{
+                codeButtonStatus.text }}</el-button>
             </el-col>
           </el-row>
         </el-form-item>
@@ -46,20 +47,10 @@
   </div>
 </template>
 <script>
-import { GetSms } from '@/api/login'
-import {
-  reactive,
-  ref,
-  isRef,
-  toRefs,
-  onMounted,
-  watch,
-} from '@vue/composition-api'
-import {
-  stripscript,
-  validatePass,
-  validateEmail,
-  validateVCode,
+import sha1 from 'js-sha1'
+import { GetSms, Register,Login } from '@/api/login'
+import { reactive,ref,isRef,toRefs,onMounted,watch} from '@vue/composition-api'
+import { stripscript,validatePass,validateEmail,validateVCode,
 } from '@/utils/validate'
 export default {
   name: 'login',
@@ -143,12 +134,10 @@ export default {
     // 初始值为 获取验证码，点击发送显示 发送中
     // const codeButtonText = ref('获取验证码')
     // 如果是一组对象，可以用reactive，简化代码
-    const codeButtonStatus = reactive(
-      {
-        status:false,
-        text:'获取验证码'
-      }
-    )
+    const codeButtonStatus = reactive({
+      status: false,
+      text: '获取验证码',
+    })
 
     // 声明变量，记录倒计时数据,初始值设为空
     const timer = ref(null)
@@ -181,24 +170,27 @@ export default {
       menuTab.forEach((elem, index) => {
         // 循环到的current值都设为false
         elem.current = false
-
       })
       // 点击时的current值设为true
       data.current = true
       // 修改模块值:login register
       model.value = data.type
       //切换登录注册时， 重置表单
+      resetFormData()
+      // 切换登录注册时，还原倒计时状态
+      clearCountDown()
+    }
+    //切换登录注册时， 重置表单
+    const resetFormData = ()=>{
       refs.loginForm.resetFields()
     }
+    // 更新验证码状态(法三)
+    const updateButtonStatus = ((params)=>{
+      codeButtonStatus.status = params.status
+      codeButtonStatus.text = params.text
+    })
     // 获取验证码
-    const getSms = () => {
-      // 修改获取验证码状态，验证码在发送时是禁用状态
-      // codeButtonStatus.value = true
-      // 点击验证码，显示 发送中
-      // codeButtonText.value = '发送中'
-      codeButtonStatus.status = true
-      codeButtonStatus.text = '发送中'
-
+    const getSms = (() => {
       // 一：获取验证码时先验证邮箱是否为空，为空进行提示
       if (ruleForm.username == '') {
         root.$message.error('邮箱不能为空')
@@ -215,18 +207,28 @@ export default {
         username: ruleForm.username,
         // module: 'login',
         // 切换注册页面传的参数要改变为register，所以不能写死
-        module: model.value
+        module: model.value,
       }
-      setTimeout(() => {
-        // 延时多长时间 执行下面代码
+      // 修改获取验证码状态，验证码在发送时是禁用状态(法一)
+      // codeButtonStatus.value = true
+      // 点击验证码，显示 发送中
+      // codeButtonText.value = '发送中'
+      // 法二
+      // codeButtonStatus.status = true
+      // codeButtonStatus.text = '发送中'
+      // 法三
+      updateButtonStatus({
+        status: true,
+        text:'发送中'
+      })
         GetSms(requestData)
           .then((response) => {
             let data = response.data
             // 验证码发送成功后，消息提示
             root.$message({
               message: data.message,
-              type: 'success'
-            });
+              type: 'success',
+            })
             // 验证码发送成功后，启用登录或注册按钮状态
             loginButtonStatus.value = false
             // 验证码发送成功后，调用计时器，开始倒计时
@@ -235,48 +237,127 @@ export default {
           .catch((error) => {
             console.log(error)
           })
-      }, 3000)
+     
+    })
 
-    }
-   
     /**
      * 提交表单
      */
     const submitForm = (formName) => {
+      // 验证表单
       refs[formName].validate((valid) => {
         // 表单验证通过
+        console.log(valid);
         if (valid) {
-          alert('submit!')
+          // 三元运算简写
+          model.value === 'login' ? login() : register()
+          // if(model.value=='login'){
+          //   // 调用登录接口
+          //   login()
+          // }else{
+          //   // 调用注册接口
+          //   register()
+          // }
+          
         } else {
           console.log('error submit!!')
           return false
         }
       })
     }
-     /**
+    /**
+     * 登录
+     */
+    const login = (()=>{
+      let data = {
+        username:ruleForm.username,
+        password:sha1(ruleForm.password),
+        code:ruleForm.code
+      }
+      Login(data).then(response=>{
+        console.log('登录结果');
+        console.log(response);
+        // 页面跳转
+        root.$router.push({
+          name:'Console'
+        })
+
+      }).catch(error=>{
+
+      })
+    })
+    /**
+     * 注册
+     */
+     const register = (()=>{
+      // 调用注册接口时，需要传入的参数
+      let requestData = {
+            username:ruleForm.username,
+            password:sha1(ruleForm.password),
+            code:ruleForm.code,
+            module:'register'
+          }
+          // 调用注册接口
+          Register(requestData).then((response)=>{
+            console.log(response);
+            let data = response.data
+            // 邮箱注册成功提示消息
+            root.$message({
+              message: data.message,
+              type: 'success'
+            })
+             // 注册成功后自动跳转到登录界面,登录界面的验证码状态恢复为初始状态
+            toggleMenu(menuTab[0])
+            clearCountDown()
+          }).catch((error)=>{
+            console.log(error);
+          })
+
+    })
+    /**
      * 倒计时
      */
-     const countdown = ((number)=>{
+     const countdown = (number)=>{
       // 60和0不显示的bug
       // setTimeout 只执行一次
       // setInterval 不断的执行，需要条件才会停止
+      // 判断定时器是否存在，存在则清除，防止用户多次点击出现多个定时器计时
+      if(timer.value){ clearInterval(timer.value) }
       let time = number
-      timer.value = setInterval(()=>{
+      timer.value = setInterval(() => {
         time--
-        console.log(time);
-        if(time === 0){
+        // console.log(time);
+        if (time === 0) {
           // 倒计时为0，1：清除倒计时
           clearInterval(timer.value)
           // 2：重新显示验证码状态，并显示文字为再次获取
-          codeButtonStatus.status = false
-          codeButtonStatus.text = '再次获取'
-        }else{
+          // codeButtonStatus.status = false
+          // codeButtonStatus.text = '再次获取'
+          updateButtonStatus({
+            status: false,
+            text:'再次获取'
+      })
+      
+        } else {
           // 倒计时减少，按钮显示倒计时秒数
-        codeButtonStatus.text =`倒计时${time}秒`  //es5写法  '倒计时'+ time + '秒' 
+          codeButtonStatus.text = `倒计时${time}秒` //es5写法  '倒计时'+ time + '秒'
         }
-        
-      },1000)
-    })
+      }, 1000)
+    }
+    /*
+     *清除跳转到登录界面时的倒计时状态 
+     */
+     const clearCountDown = (()=>{
+      // 还原验证码按钮状态
+      // codeButtonStatus.status = false
+      // codeButtonStatus.text = "获取验证码"
+      updateButtonStatus({
+            status: false,
+            text:'获取验证码'
+      })
+      // 清除倒计时
+      clearInterval(timer.value)
+     })
 
     /**
      * 生命周期
