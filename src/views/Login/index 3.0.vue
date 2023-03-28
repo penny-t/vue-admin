@@ -257,6 +257,7 @@ export default {
      * 倒计时
      */
      const countdown = ((number)=>{
+      // 60和0不显示的bug
       // setTimeout 只执行一次
       // setInterval 不断的执行，需要条件才会停止
       let time = number
