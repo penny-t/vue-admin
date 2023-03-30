@@ -1,5 +1,6 @@
 <template>
   <div id="nav-wrap">
+    <h1 class="logo"><img src="../../../assets/logo.png" alt=""></h1>
     <el-menu :router="true" default-active="1-4-1" class="el-menu-vertical-demo" background-color="transparent" text-color="#fff"
       active-text-color="#fff" @open="handleOpen" @close="handleClose" :collapse="isCollapse">
       
@@ -55,6 +56,13 @@ export default {
 }
 </script>
 <style scoped lang="scss">
+.logo {
+  text-align: center;
+  img { 
+    margin: 28px auto 25px;
+    width: 92px;
+  }
+}
 #nav-wrap {
   position: fixed;
   top: 0;
