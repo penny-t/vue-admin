@@ -9,6 +9,7 @@ module.exports = {
   /** vue3.0内置了webpack所有东西，
    * webpack配置,see https://github.com/vuejs/vue-cli/blob/dev/docs/webpack.md
    **/
+  // 配置制作的svg图片以及依赖
   chainWebpack: (config) => {
     const svgRule = config.module.rule("svg");
     svgRule.uses.clear();
@@ -24,7 +25,7 @@ module.exports = {
     config.resolve = { // 配置解析别名
       extensions: ['.js', '.json', '.vue'], // 自动添加文件名后缀
       alias: {
-        'vue': 'vue/dist/vue.js',
+        'vue': 'vue/dist/vue.js', //2.0是runtime运行模式，使用自定义组件时是3.0的compile模式，所以需要改变vue的指向文件，才能使用自定义组件
         '@': path.resolve(__dirname, './src'),//以@代表/src路径
         '@c': path.resolve(__dirname, './src/components')
       }

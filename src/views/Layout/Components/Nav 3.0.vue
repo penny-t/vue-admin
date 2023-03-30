@@ -7,7 +7,10 @@
         <el-submenu :key="item.id" v-if="!item.hidden" :index="index + ''">
           <!-- 一级菜单 -->
           <template slot="title">
-            <i class="el-icon-location"></i>
+            <!-- 使用制作的svg图标 -->
+            <!-- <svg-icon iconClass="menu" className="menu"></svg-icon> -->
+            <!-- router中的index.js配置icon 从该文件中引入制作的图标 -->
+            <svg-icon :iconClass="item.meta.icon" className="item.meta.icon"></svg-icon>
             <span slot="title">{{ item.meta.name }}</span>
           </template>
           <!-- 子级菜单 -->
@@ -17,6 +20,7 @@
       </template>
 
     </el-menu>
+
 
   </div>
 </template>
@@ -58,6 +62,10 @@ export default {
   height: 100vh;
   width: $navMenu;
   background-color: #344a5f;
+  svg {
+    font-size: 20px;
+    margin-right: 10px;
+  }
 }
 
 </style>
