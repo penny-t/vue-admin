@@ -1,5 +1,5 @@
 <template>
-  <div>控制台</div>
+  <div>控制台11</div>
 </template>
 <script>
 export default{

@@ -12,8 +12,8 @@ export default{
 #main-wrap{
   width: 100wh;
   height: 100vh;
+  border:30px solid #f7f7f7;
   border-bottom: none;
-  background-color: #fff;
   margin:75px 0 0 280px;
   -webkit-box-sizing: border-box;
 }
