@@ -1,8 +1,7 @@
 <template>
   <div id="nav-wrap">
     <h1 class="logo"><img src="../../../assets/logo.png" alt=""></h1>
-    <el-menu :router="true" default-active="1-4-1" class="el-menu-vertical-demo" background-color="transparent" text-color="#fff"
-      active-text-color="#fff" @open="handleOpen" @close="handleClose" :collapse="isCollapse">
+    <el-menu :router="true" default-active="1-4-1" class="el-menu-vertical-demo" background-color="transparent" text-color="#fff" active-text-color="#fff" :collapse="isCollapse">
       
       <template v-for="(item, index) in routers">
         <el-submenu :key="item.id" v-if="!item.hidden" :index="index + ''">
@@ -26,30 +25,30 @@
   </div>
 </template>
 <script>
-import { reactive, ref, isRef, toRefs, onMounted, watch } from '@vue/composition-api'
+import { reactive, ref, isRef, toRefs, onMounted, computed } from '@vue/composition-api'
 export default {
   name: 'navMenu',
   setup(props, { root }) {
     /*
     *data数据
     */
-    const isCollapse = ref(false)
     const routers = reactive(root.$router.options.routes)
-    console.log(routers);
+
+    /*
+    *computed 监听
+    */ 
+  //  监听store中的isCollapse变化，只要有变化就赋给变量isCollapse
+    const isCollapse = computed(() => {
+      return root.$store.state.isCollapse
+    })
+
     /*
     *函数
      */
-    const handleOpen = (key, keyPath) => {
-      console.log(key, keyPath);
-    }
-    const handleClose = (key, keyPath) => {
-      console.log(key, keyPath);
-    }
+   
 
     return {
       isCollapse,
-      handleOpen,
-      handleClose,
       routers
     }
   }
@@ -68,12 +67,19 @@ export default {
   top: 0;
   left: 0;
   height: 100vh;
-  width: $navMenu;
   background-color: #344a5f;
+  @include webkit(transition, all .3s ease 0s);
+
   svg {
     font-size: 20px;
     margin-right: 10px;
   }
+}
+.open{
+  #nav-wrap { width: $navMenu; }
+}
+.close{
+  #nav-wrap { width:$navMenuMin }
 }
 
 </style>

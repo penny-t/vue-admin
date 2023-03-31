@@ -1,10 +1,11 @@
 <template>
   <div id="header-wrap">
-    <div class="pull-left header-icon">
+    <div class="pull-left header-icon" @click="navMenustate">
       <svg-icon iconClass="menu" className="menu"></svg-icon>
     </div>
     <div class="pull-right">
-      <div class="user-info pull-left">管理员</div>
+      <div class="user-info pull-left">
+        管理员</div>
       <div class="header-icon pull-left">
         <svg-icon iconClass="exit" className="exit"></svg-icon>
       </div>
@@ -12,9 +13,20 @@
   </div>
 </template>
 <script>
-import SvgIcon from '../../../icons/SvgIcon.vue'
+
 export default{
-  components: { SvgIcon },
+  name:"layoutHeader",
+  setup(props,{ root }){
+    const navMenustate = () => {
+      root.$store.commit('SET_COLLAPSE')
+    }
+
+
+
+    return{
+      navMenustate
+    }
+  }
   
 }
 </script>
@@ -23,12 +35,18 @@ export default{
   position: fixed;
   top: 0;
   right: 0;
-  left: $navMenu;
   height: 75px;
   line-height: 75px;
   background-color: #fff;
-  -webkit-box-shadow:0 3px 16px 0 rgba(0,0,0,.1);
+  @include webkit(box-shadow,0 3px 16px 0 rgba(0,0,0,.1));
+  @include webkit(transition, all .3s ease 0s);
   line-height: 75px;
+}
+.open{
+  #header-wrap { left: $navMenu; }
+}
+.close{
+  #header-wrap { left: $navMenuMin; }
 }
 .header-icon{
   padding: 0 32px;
