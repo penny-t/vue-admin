@@ -39,7 +39,7 @@ export default {
     */ 
   //  监听store中的isCollapse变化，只要有变化就赋给变量isCollapse
     const isCollapse = computed(() => {
-      return root.$store.state.isCollapse
+      return root.$store.state.app.isCollapse
     })
 
     /*

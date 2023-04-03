@@ -269,22 +269,31 @@ export default {
      * 登录
      */
     const login = (()=>{
-      let data = {
+      let requestData = {
         username:ruleForm.username,
         password:sha1(ruleForm.password),
         code:ruleForm.code
       }
-      Login(data).then(response=>{
+      // 更改使用vuex中的actions方法调用该接口
+      root.$store.dispatch('login',requestData).then(response =>{
         console.log('登录结果');
         console.log(response);
-        // 页面跳转
+          // 页面跳转
         root.$router.push({
           name:'Console'
         })
+      }).catch(error => {})
+      // Login(requestData).then(response=>{
+      //   console.log('登录结果');
+      //   console.log(response);
+      //   // 页面跳转
+      //   root.$router.push({
+      //     name:'Console'
+      //   })
 
-      }).catch(error=>{
+      // }).catch(error=>{
 
-      })
+      // })
     })
     /**
      * 注册
