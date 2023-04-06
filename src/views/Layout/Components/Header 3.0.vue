@@ -18,7 +18,7 @@ export default{
   name:"layoutHeader",
   setup(props,{ root }){
     const navMenustate = () => {
-      root.$store.commit('SET_COLLAPSE')
+      root.$store.commit('app/SET_COLLAPSE')
     }
 
 

@@ -5,7 +5,7 @@ import router from "./router/index.js";
 import store from "./store/index.js";
 import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
-
+import "./router/permit"
 // 自定义全局方法
 // import global from "@/utils/global.js"; 
 // Vue.use(global);

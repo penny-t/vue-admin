@@ -19,7 +19,7 @@ export default {
   },
   setup(props,{ root }) {
     // es6写法，只有一行时可省略return 和大括号
-    const menuStatus = computed(() => root.$store.state.isCollapse)
+    const menuStatus = computed(() => root.$store.state.app.isCollapse)
 
 
     return{
