@@ -5,7 +5,8 @@
     </div>
     <div class="pull-right">
       <div class="user-info pull-left">
-        管理员</div>
+        <img src="../../../assets/images/face.jpg" alt="">
+        {{ username }}</div>
       <div class="header-icon pull-left">
         <svg-icon iconClass="exit" className="exit"></svg-icon>
       </div>
@@ -13,10 +14,13 @@
   </div>
 </template>
 <script>
-
+import {computed} from "@vue/composition-api"
 export default{
   name:"layoutHeader",
   setup(props,{ root }){
+
+    const username = computed(() => root.$store.state.app.username);
+
     const navMenustate = () => {
       root.$store.commit('app/SET_COLLAPSE')
     }
@@ -24,7 +28,8 @@ export default{
 
 
     return{
-      navMenustate
+      navMenustate,
+      username
     }
   }
   
@@ -63,5 +68,11 @@ export default{
   + .header-icon{
     padding: 0 28px;
   }
+  img {
+        display: inline-block;
+        margin-bottom: -12px;
+        margin-right: 18px;
+        border-radius: 50px;
+    }
 }
 </style>

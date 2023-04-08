@@ -8,6 +8,7 @@ router.beforeEach((to, from, next) => {
   if(getToKen()){
      // 路由动态添加，分配菜单，每个角色分配不同的菜单
     console.log('存在');
+    next()  //to路径跳到/console 其中的redirect又重定向到/index页面
   }else{
     console.log('不存在');
     if(whiteRouter.indexOf(to.path) !== -1) {  // 存在

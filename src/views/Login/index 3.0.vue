@@ -275,7 +275,7 @@ export default {
         code:ruleForm.code
       }
       // 更改使用vuex中的actions方法调用该接口
-      root.$store.dispatch('login',requestData).then(response =>{
+      root.$store.dispatch('app/login',requestData).then(response =>{
         console.log('登录结果');
         console.log(response);
           // 页面跳转
