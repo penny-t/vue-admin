@@ -1,5 +1,5 @@
 import { Login } from "@/api/login";
-import { setToKen, setUserName, getUserName } from "@/utils/app";
+import { setToKen, setUserName, getUserName,removeToKen,removeUserName } from "@/utils/app";
 
 const state = {
   isCollapse: JSON.parse(sessionStorage.getItem("isCollapse")) || false,
@@ -52,6 +52,18 @@ const actions = {
         });
     });
   },
+  // 退出登录
+  exit({ commit }){
+    return new Promise((resolve, reject) => {
+        removeToKen();
+        removeUserName();
+        commit('SET_TOKEN', '');
+        commit('SET_USERNAME', '');
+        resolve();
+    })
+    
+}
+
 };
 
 export default {

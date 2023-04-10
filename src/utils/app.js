@@ -21,6 +21,10 @@ export function getUserName(){
   return cookie.get(usernameKey);
 }
 
+export function removeToKen(toKen){
+  return cookie.remove(adminToKen);
+}
+
 export function removeUserName(){
   return cookie.remove(usernameKey);
 }

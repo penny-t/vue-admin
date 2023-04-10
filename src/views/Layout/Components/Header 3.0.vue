@@ -7,7 +7,7 @@
       <div class="user-info pull-left">
         <img src="../../../assets/images/face.jpg" alt="">
         {{ username }}</div>
-      <div class="header-icon pull-left">
+      <div class="header-icon pull-left" @click="exit">
         <svg-icon iconClass="exit" className="exit"></svg-icon>
       </div>
     </div>
@@ -24,12 +24,20 @@ export default{
     const navMenustate = () => {
       root.$store.commit('app/SET_COLLAPSE')
     }
-
+     // 退出
+     const exit = () => {
+            root.$store.dispatch('app/exit').then(() => {
+                root.$router.push({
+                    name: 'Login'
+                })
+            })
+        }
 
 
     return{
       navMenustate,
-      username
+      username,
+      exit
     }
   }
   
