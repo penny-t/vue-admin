@@ -8,7 +8,7 @@ const whiteRouter = ["/login"]; //设置白名单
 router.beforeEach((to, from, next) => {
   if (getToKen()) {
     if (to.path == "/login") {
-      // 清除token
+      // 清除浏览器token
       removeToKen();
       removeUserName();
       // 清除store中的token
@@ -19,10 +19,10 @@ router.beforeEach((to, from, next) => {
       next();
     }
     // 路由动态添加，分配菜单，每个角色分配不同的菜单
-    console.log("存在");
+    // console.log("存在");
     next(); //to路径跳到/console 其中的redirect又重定向到/index页面
   } else {
-    console.log("不存在");
+    // console.log("不存在");
     if (whiteRouter.indexOf(to.path) !== -1) {
       // 存在
       next(); //next没有参数时，默认执行to的路径
