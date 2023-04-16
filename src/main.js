@@ -7,14 +7,14 @@ import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import "./router/permit"
 // 自定义全局方法
-// import global from "@/utils/global.js"; 
-// Vue.use(global);
+import global from "@/utils/global.js"; 
+
 
 
 // 自定义全局组件  全局注册SvgIcon组件
 import "./icons";
 
-
+Vue.use(global);
 Vue.use(ElementUI);
 Vue.use(VueCompositionApi)
 

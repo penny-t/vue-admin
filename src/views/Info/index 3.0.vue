@@ -47,16 +47,16 @@
     </el-row>
     <!-- 表格数据 -->
     <div class="black-space-30"></div>
-    <el-table :data="table_data" border  style="width: 100%">
+    <el-table :data="table_data" border style="width: 100%">
       <el-table-column type="selection" width="45"></el-table-column>
       <el-table-column prop="title" label="标题" width="830"></el-table-column>
-      <el-table-column prop="catory" label="类型" width="130" ></el-table-column>
-      <el-table-column prop="date" label="日期" width="237" ></el-table-column>
+      <el-table-column prop="catory" label="类型" width="130"></el-table-column>
+      <el-table-column prop="date" label="日期" width="237"></el-table-column>
       <el-table-column prop="user" label="管理员" width="115"></el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button type="danger" size="mini" >删除</el-button>
-          <el-button type="success" size="mini" >编辑</el-button>
+          <el-button type="danger" size="mini" @click="deleteItem">删除</el-button>
+          <el-button type="success" size="mini">编辑</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -64,7 +64,7 @@
     <!--底部分页-->
     <el-row>
       <el-col :span="12">
-        <el-button size="medium">批量删除</el-button>
+        <el-button size="medium" @click="deleteAll">批量删除</el-button>
       </el-col>
       <el-col :span="12">
         <el-pagination class="pull-right" background @size-change="handleSizeChange" @current-change="handleCurrentChange"
@@ -73,7 +73,7 @@
       </el-col>
     </el-row>
     <!-- 信息弹窗 -->
-    <DialogInfo :flag.sync="dialog_info"/>
+    <DialogInfo :flag.sync="dialog_info" />
   </div>
 </template>
 <script>
@@ -82,22 +82,22 @@ import DialogInfo from './dialog/info3.0'
 import { reactive, ref, watch, onMounted } from '@vue/composition-api';
 export default {
   name: 'infoIndex',
-  components:{
+  components: {
     DialogInfo
   },
-  setup(props) {
+  setup(props,{ root }) {
     /*
     *数据
      */
     // 信息弹窗关闭打开状态值
-     const dialog_info = ref(false);
-     const category_value = ref('');
+    const dialog_info = ref(false);
+    const category_value = ref('');
     const date_value = ref('');
     const search_key = reactive('id')
     const search_keyWork = ref('')
 
-     // 搜索关键字
-     const search_option = reactive([
+    // 搜索关键字
+    const search_option = reactive([
       { value: "id", label: "ID" },
       { value: "title", label: "标题" }
     ])
@@ -111,8 +111,8 @@ export default {
       value: 3,
       label: '行业信息'
     }]);
-   
-    
+
+
     /*
     *表格数据
     */
@@ -150,7 +150,28 @@ export default {
       page.pageNumber = val
       getList()
     }
-   
+    //  删除
+    const deleteItem = () => {
+      root.confirm({
+        content:"确认删除当前信息，确认后将无法恢复！！",
+        tip:"警告",
+        fn:confirmDelete, //调用确认删除方法 
+        id:"111"
+      })
+    }
+    // 批量删除
+    const deleteAll = () => {
+      root.confirm({
+        content:"确认删除选择的数据，确认后将无法恢复！！",
+        tip:"success",
+        fn:confirmDelete,
+        id:"222"
+      })
+    }
+    // 确认删除接口
+    const confirmDelete = (value) => {
+      console.log(value);
+    }
 
 
     return {
@@ -167,7 +188,8 @@ export default {
       //vue2.0 methods
       handleSizeChange,
       handleCurrentChange,
-      
+      deleteItem,
+      deleteAll
     }
   }
 
